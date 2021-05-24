@@ -1,6 +1,6 @@
-local Color = {}
-Color.__index = Color
-Color.__type = "Color"
+local Class = require("Class")
+
+local Color = Class:new("Color")
 
 local function clampNormal(n)
   if n < 0 then
@@ -59,8 +59,7 @@ end
 function Color:new(red, green, blue, alpha)
   alpha = alpha or 1
 
-  local col = {}
-  setmetatable(col, Color)
+  local col = Class:new("Color")
   col.r = clampNormal(red)
   col.g = clampNormal(green)
   col.b = clampNormal(blue)
@@ -93,7 +92,7 @@ function Color.average(...)
   local alpha = 0
 
   for i, col in ipairs(cols) do
-    assert(col.__type == "Color", "All arguments passed to Color.average must be of type Color. Argument number "..i.." is a "..type(col))
+    assert(col:typeOf("Color"), "All arguments passed to Color.average must be of type Color. Argument number "..i.." is a "..type(col))
 
     red = red + col.r
     green = green + col.g
@@ -120,6 +119,6 @@ Color.cyan          = Color:new(0, 1, 1, 1)
 Color.magenta       = Color:new(1, 0, 1, 1)
 Color.pink          = Color:new(1, 0.5, 0.6, 1)
 Color.brown         = Color:new(0.6, 0.3, 0.2, 1)
-Color.lightUrple    = Color.average(Color.purple, Color.white)
+-- Color.lightUrple    = Color.average(Color.purple, Color.white)
 
 return Color

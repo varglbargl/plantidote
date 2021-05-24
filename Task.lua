@@ -21,18 +21,17 @@ function Task.wait(secs)
   if not coroutine.running() then return end
 
   secs = secs or 0
-  local startTime = gameTime
+  local startTime = love.game.time
   local endTime = startTime + secs
 
-  while gameTime <= endTime do
+  while love.game.time <= endTime do
     coroutine.yield()
   end
 
-  return gameTime - startTime
+  return love.game.time - startTime
 end
 
 function Task.kill(co)
-  co = co or coroutine.running()
   if not co then return end
 
   for i, v in ipairs(jobs) do

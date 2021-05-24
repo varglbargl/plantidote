@@ -1,48 +1,21 @@
-local Task = require("Task")
-local GameObject = require("GameObject")
-local Vector2 = require("Vector2")
-local Color = require("Color")
-local Events = require("Events")
-local Console = require("Console")
+require("utils")
 
-function love.load()
+local function load()
   love.window.setTitle("Plantidote v0.0.1")
-  gameTime = 0
   love.window.setMode(1280, 720, {resizable = true})
-  love.window.width = love.graphics.getWidth()
-  love.window.height = love.graphics.getHeight()
+
+  ui = Layer:new("ui")
+  Console.log(ui:type())
+  -- playButton = Button:new({parent = ui})
 end
 
-function love.update(dt)
-  Events.broadcast("update")
-  love.window.width = love.graphics.getWidth()
-  love.window.height = love.graphics.getHeight()
-  gameTime = gameTime + dt
-  Task.tick()
+local function update(dt)
 end
 
-function love.draw()
-  Events.broadcast("draw")
-  love.graphics.setBackgroundColor(1, 1, 1)
-  Console.draw()
+local function draw()
+  love.graphics.setBackgroundColor(Color.white)
 end
 
-function love.mousepressed(x, y, button, isTouch)
-  Console.log("You pressed Mouse Button "..button..".", Color.purple)
-end
-
-function love.keypressed(key)
-  Console.log("You pressed Keyboard Key "..key..".", Color.purple)
-
-  if key == "escape" then
-    love.event.quit()
-  end
-
-  if key == "`" then
-    Console.show()
-  end
-
-  if key == "c" then
-    Console.clear()
-  end
-end
+Events.connect("load", load)
+Events.connect("update", update)
+Events.connect("draw", draw)

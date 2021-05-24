@@ -56,6 +56,8 @@ end
 
 function Console.draw()
   local logHeight = 18 * shownLines
+  love.window.width = love.graphics.getWidth()
+  love.window.height = love.graphics.getHeight()
 
   love.graphics.setColor(0, 0, 0, 0.7)
   love.graphics.rectangle("fill", 40, love.window.height - logHeight - 40, love.window.width - 80, logHeight)

@@ -28,11 +28,23 @@ function Events.disconnect(eventName, callback)
 end
 
 function Events.broadcast(eventName, ...)
-  Console.log("Broadcasting "..eventName, Color.orange)
+  -- Console.log("Broadcasting "..eventName, Color.orange)
   if not registry[eventName] then return end
 
   for _, func in ipairs(registry[eventName]) do
     func(...)
+  end
+end
+
+function Events.hook(loveEventName)
+  local oldLoveEvent = love[loveEventName]
+
+  if oldLoveEvent then
+    Events.connect(loveEventName, oldLoveEvent)
+  end
+
+  love[loveEventName] = function(...)
+    Events.broadcast(loveEventName, ...)
   end
 end
 
