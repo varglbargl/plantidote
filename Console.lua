@@ -3,12 +3,14 @@ local Color = require("Color")
 
 local Console = {}
 
+Console.debugMode = false
+local timeout = 3
 local log = {}
 local shownLines = 0
 local cleanupTasks = {}
 
 local function cancelCleanupTasks()
-  for i, ctask in ipairs(cleanupTasks) do
+  for _, ctask in ipairs(cleanupTasks) do
     Task.kill(ctask)
   end
 
@@ -26,6 +28,22 @@ function Console.log(message, textColor)
   Console.show(1)
 end
 
+function Console.debug(message)
+  if Console.debugMode then
+    Console.log(message, Color.red)
+  end
+end
+
+function Console.startDebugging()
+  timeout = 10
+  Console.debugMode = true
+end
+
+function Console.stopDebugging()
+  timeout = 3
+  Console.debugMode = false
+end
+
 function Console.show(howManyLines)
   if not howManyLines then
     howManyLines = #log
@@ -35,7 +53,7 @@ function Console.show(howManyLines)
   shownLines = math.min(shownLines + howManyLines, #log)
 
   local co = Task.spawn(function()
-    Task.wait(3)
+    Task.wait(timeout)
     shownLines = math.max(shownLines - howManyLines, 0)
     table.remove(cleanupTasks, 1)
   end)
@@ -79,6 +97,8 @@ function Console.draw()
     -- love.graphics.print(text,x,y,r,sx,sy,ox,oy)
     love.graphics.print(tostring(messageText), 42, love.window.height - logHeight - 58 + i * 18)
   end
+
+  love.graphics.setColor(Color.white)
 end
 
 return Console

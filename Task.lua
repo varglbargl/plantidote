@@ -3,8 +3,13 @@ local jobs = {}
 
 function Task.tick()
   for i, co in ipairs(jobs) do
-    if coroutine.status(co) then
-      coroutine.resume(co)
+    if coroutine.status(co) == "suspended" then
+      local working, message = coroutine.resume(co)
+
+      if not working then
+        error("Error in task:\n  ->  "..message)
+      end
+
     else
       table.remove(jobs, i)
     end

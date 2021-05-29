@@ -13,53 +13,55 @@ local function clampNormal(n)
 end
 
 function Color:__add(col)
-  if col.__type == "Color" then
+  if col:typeOf("Color") then
     return Color:new(self.r+col.r, self.g+col.g, self.b+col.b, self.a+col.a)
   elseif type(col) == "number" then
     return Color:new(self.r+col, self.g+col, self.b+col, self.a+col)
   else
-    error("Colors can only be added to numbers, Vector3s, Vector4s, or other Colors")
+    error("Colors can only be added to numbers or other Colors")
   end
 end
 
 function Color:__sub(col)
-  if col.__type == "Color" then
+  if col:typeOf("Color") then
     return Color:new(self.r-col.r, self.g-col.g, self.b-col.b, self.a-col.a)
   elseif type(col) == "number" then
     return Color:new(self.r-col, self.g-col, self.b-col, self.a-col)
   else
-    error("Colors can only be subtracted from numbers, Vector3s, Vector4s, or other Colors")
+    error("Colors can only be subtracted from numbers or other Colors")
   end
 end
 
 function Color:__mul(col)
-  if col.__type == "Color" then
+  if col:typeOf("Color") then
     return Color:new(self.r*col.r, self.g*col.g, self.b*col.b, self.a*col.a)
   elseif type(col) == "number" then
     return Color:new(self.r*col, self.g*col, self.b*col, self.a*col)
   else
-    error("Colors can only be multiplied by numbers, Vector3s, Vector4s, or other Colors")
+    error("Colors can only be multiplied by numbers or other Colors")
   end
 end
 
 function Color:__div(col)
-  if col.__type == "Color" then
+  if col:typeOf("Color") then
     return Color:new(self.r/col.r, self.g/col.g, self.b/col.b, self.a/col.a)
   elseif type(col) == "number" then
     return Color:new(self.r/col, self.g/col, self.b/col, self.a/col)
   else
-    error("Colors can only be divided by numbers, Vector3s, Vector4s, or other Colors")
+    error("Colors can only be divided by numbers or other Colors")
   end
 end
 
 function Color:__tostring()
-  return string.format("<Color %f, %f, %f, %f>", self.r, self.g, self.b, self.a)
+  return string.format("<Color - r:%i, g:%i, b:%i, a:%f>", self.r*255, self.g*255, self.b*255, self.a)
 end
 
 function Color:new(red, green, blue, alpha)
   alpha = alpha or 1
 
-  local col = Class:new("Color")
+  local col = {}
+  Class.extend(col, Color)
+
   col.r = clampNormal(red)
   col.g = clampNormal(green)
   col.b = clampNormal(blue)
@@ -92,7 +94,7 @@ function Color.average(...)
   local alpha = 0
 
   for i, col in ipairs(cols) do
-    assert(col:typeOf("Color"), "All arguments passed to Color.average must be of type Color. Argument number "..i.." is a "..type(col))
+    assert(col:typeOf("Color"), "All arguments passed to Color.average must be of type Color. Argument number "..i.." is a "..typeOf(col))
 
     red = red + col.r
     green = green + col.g
@@ -103,22 +105,22 @@ function Color.average(...)
   return Color:new(red/#cols, green/#cols, blue/#cols, alpha/#cols)
 end
 
-Color.white         = Color:new(1, 1, 1, 1)
-Color.black         = Color:new(0, 0, 0, 1)
-Color.transperent   = Color:new(1, 1, 1, 0)
+Color.white       = Color:new(1, 1, 1, 1)
+Color.black       = Color:new(0, 0, 0, 1)
+Color.transperent = Color:new(1, 1, 1, 0)
 
-Color.red           = Color:new(1, 0, 0, 1)
-Color.orange        = Color:new(1, 0.4, 0, 1)
-Color.yellow        = Color:new(1, 1, 0, 1)
-Color.green         = Color:new(0, 1, 0, 1)
-Color.blue          = Color:new(0, 0, 1, 1)
-Color.purple        = Color:new(0.5, 0, 1, 1)
+Color.red         = Color:new(1, 0, 0, 1)
+Color.orange      = Color:new(1, 0.4, 0, 1)
+Color.yellow      = Color:new(1, 1, 0, 1)
+Color.green       = Color:new(0, 1, 0, 1)
+Color.blue        = Color:new(0, 0, 1, 1)
+Color.purple      = Color:new(0.5, 0, 1, 1)
 
-Color.gray          = Color:new(0.5, 0.5, 0.5, 1)
-Color.cyan          = Color:new(0, 1, 1, 1)
-Color.magenta       = Color:new(1, 0, 1, 1)
-Color.pink          = Color:new(1, 0.5, 0.6, 1)
-Color.brown         = Color:new(0.6, 0.3, 0.2, 1)
--- Color.lightUrple    = Color.average(Color.purple, Color.white)
+Color.gray        = Color:new(0.5, 0.5, 0.5, 1)
+Color.cyan        = Color:new(0, 1, 1, 1)
+Color.magenta     = Color:new(1, 0, 1, 1)
+Color.pink        = Color:new(1, 0.5, 0.6, 1)
+Color.brown       = Color:new(0.6, 0.3, 0.2, 1)
+Color.lightUrple  = Color.average(Color.purple, Color.white)
 
 return Color
