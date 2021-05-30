@@ -1,10 +1,10 @@
-Task = require("Task")
-Events = require("Events")
-Console = require("Console")
-Color = require("Color")
-Layer = require("Layer")
-Button = require("Button")
-Vector2 = require("Vector2")
+local Task = require("Task")
+local Events = require("Events")
+local Console = require("Console")
+local Color = require("Color")
+local Layer = require("Layer")
+local Button = require("Button")
+local Vector2 = require("Vector2")
 require("utils")
 
 local function load()
@@ -19,9 +19,21 @@ local function load()
 
   Button:new(0, 0, {
     backgroundImage = "hotpocket.jpg",
-    align = "middle center",
-    anchor = "middle center",
-    parent = Game.ui
+    align = {0.5, 0.5},
+    anchor = {0.5, 0.5},
+    parent = Game.ui,
+    hovered = function(self)
+      self:setOffset(Vector2:new(0, 4))
+    end,
+    unhovered = function(self)
+      self:setOffset()
+    end,
+    pressed = function(self)
+      self:setOffset()
+    end,
+    released = function(self)
+      self:setOffset(Vector2:new(0, 4))
+    end
   })
 
   love.graphics.setBackgroundColor(Color.white)

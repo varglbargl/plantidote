@@ -69,7 +69,12 @@ function GameObject:getOffset()
   return Vector2:new(self.offset)
 end
 
-function GameObject:setPosition(vec2)
+function GameObject:setPosition(vec2, y)
+  if type(vec2) == "number" and type(y) == "number" then
+    self:setPosition({vec2, y})
+    return
+  end
+
   vec2 = vec2 or Vector2.zero
   self.position = Vector2:new(vec2)
   self.x = self.position.x
@@ -116,6 +121,11 @@ function GameObject:new(x, y, params)
   gameObjectList[obj.id] = obj
   obj.children = {}
 
+  obj.width = params.width or 100
+  obj.height = params.height or 100
+  obj.align = params.align or {0, 0}
+  obj.anchor = params.anchor or {0, 0}
+
   obj.position = params.position or Vector2:new(x, y)
   obj.x = obj.position.x
   obj.y = obj.position.y
@@ -136,7 +146,7 @@ function GameObject:draw()
   if not self.visible then return end
 
   if self.image then
-    love.graphics.draw(self.image, self.position.x, self.position.y, self.rotation, self.scale.x, self.scale.y, self.offset.x, self.offset.y)
+    love.graphics.draw(self.image, self.position.x, self.position.y, self.rotation, self.scale.x, self.scale.y, self.offset.x - (self.width * self.anchor[1]), self.offset.y - (self.height * self.anchor[2]))
   end
 
   for _, child in ipairs(self.children) do

@@ -26,14 +26,28 @@ local function layerFromName(name)
   end
 end
 
+local function resizeLayers()
+  for _, lyr in ipairs(layerList) do
+    lyr.width = love.window.width
+    lyr.height = love.window.height
+  end
+end
+
+Events.connect("resize", resizeLayers)
+
 function Layer:__tostring()
   return string.format("<Layer - name:%s id:%s>", self.name, self.id)
 end
 
 function Layer:new(name, params)
   assert(name and type(name) == "string", "Layers must be given a name.")
+
+  params = params or {}
   local lyr = GameObject:new(0, 0, params)
   Class.extend(lyr, Layer)
+
+  lyr.width = love.window.width
+  lyr.height = love.window.height
 
   if lyr.parent and lyr.parent:typeOf("Layer") then
     lyr.parent[string.lower(name)] = lyr

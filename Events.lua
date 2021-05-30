@@ -32,10 +32,22 @@ function Events.disconnect(eventName, callback)
   if not registry[eventName] then return end
 
   if callback and type(callback) == "function" then
+    for i, func in ipairs(registry[eventName].__before) do
+      if func == callback then
+        table.remove(registry[eventName].__before, i)
+        return
+      end
+    end
     for i, func in ipairs(registry[eventName]) do
       if func == callback then
         table.remove(registry[eventName], i)
-        break
+        return
+      end
+    end
+    for i, func in ipairs(registry[eventName].__after) do
+      if func == callback then
+        table.remove(registry[eventName].__after, i)
+        return
       end
     end
   else

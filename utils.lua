@@ -8,10 +8,12 @@ Events.connectAfter("draw", Console.draw)
 
 -- random utility garbo
 
-Events.connect("resize", function()
+local function handleResize()
   love.window.width = love.graphics.getWidth()
   love.window.height = love.graphics.getHeight()
-end)
+end
+
+Events.connectBefore("resize", handleResize)
 
 Events.connect("keypressed", function(keyCode)
   if keyCode == "`" then
@@ -21,15 +23,18 @@ Events.connect("keypressed", function(keyCode)
   elseif keyCode == "escape" then
     Events.broadcast("quit")
   else
-    Console.debug("You pressed Keyboard Key "..keyCode..".")
+    Console.debug("You pressed Keyboard Key \""..keyCode.."\"")
   end
 end)
 
-Events.connect("load", function()
-  love.window.width = love.graphics.getWidth()
-  love.window.height = love.graphics.getHeight()
+Events.connectBefore("load", function()
+  handleResize()
   love.game = {}
   love.game.time = 0
+end)
+
+Events.connectAfter("load", function()
+  Events.broadcast("resize")
 end)
 
 Events.connect("update", function(dt)

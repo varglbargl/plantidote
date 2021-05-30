@@ -12,10 +12,24 @@ Class.extend(Button, GameObject)
 local buttonList = {}
 local focussedButton = nil
 
+
+local function getHitbox(btn)
+  local alignPx = Vector2.zero
+
+  if btn.parent then
+    alignPx = Vector2:new(btn.parent.width * btn.align[1], btn.parent.height * btn.align[2])
+  else
+    alignPx = Vector2:new(love.window.width * btn.align[1], love.window.height * btn.align[2])
+  end
+
+  return {x1 = btn.x + alignPx.x - btn.width * btn.anchor[1], y1 = btn.y + alignPx.y - btn.height * btn.anchor[2], x2 = btn.x + alignPx.x + btn.width * (1 - btn.anchor[1]), y2 = btn.y + alignPx.y + btn.height * (1 - btn.anchor[2])}
+end
+
 local function isInside(btn, x, y)
   if not btn:isActive() then return end
+  local hitbox = getHitbox(btn)
 
-  if x > btn.hitbox.x1 and y > btn.hitbox.y1 and x < btn.hitbox.x2 and y < btn.hitbox.y2 then
+  if x > hitbox.x1 and y > hitbox.y1 and x < hitbox.x2 and y < hitbox.y2 then
     if not btn:isFocussed() then
       btn:focus()
       Events.broadcast("hovered", btn, x, y)
@@ -37,10 +51,10 @@ local function checkMouseOver(x, y)
   y = y or love.mouse.getY()
 
   if focussedButton then
-    if isInside(focussedButton, x, y) then return end
+    isInside(focussedButton, x, y)
   else
     for i = #buttonList, 1, -1 do
-      if isInside(buttonList[i], x, y) then return end
+      if isInside(buttonList[i], x, y) then break end
     end
   end
 end
@@ -76,8 +90,6 @@ function Button:new(x, y, params)
   local btn = GameObject:new(x, y, params)
   Class.extend(btn, Button)
 
-  btn.width = params.width or 200
-  btn.height = params.height or 50
   btn.focussed = false
   btn.active = params.active or true
   btn.label = params.label
@@ -104,8 +116,6 @@ function Button:new(x, y, params)
   end
 
   love.graphics.setCanvas()
-
-  btn.hitbox = {x1 = x, y1 = y, x2 = x + btn.width, y2 = y + btn.height}
 
   function btn.onHovered(whichBtn, mouseX, mouseY)
     if whichBtn ~= btn then return end
@@ -161,12 +171,6 @@ function Button:new(x, y, params)
   return btn
 end
 
-function Button:setPosition(vec2)
-  self.position = Vector2:new(vec2)
-  self.x = self.position.x
-  self.y = self.position.y
-end
-
 function Button:focus()
   if not self:isFocussed() and self:isValid() then
     if focussedButton then focussedButton:unfocus() end
@@ -179,6 +183,21 @@ function Button:unfocus()
   if self:isFocussed() then
     focussedButton = nil
   end
+end
+
+
+function GameObject:setPosition(vec2, y)
+  if type(vec2) == "number" and type(y) == "number" then
+    self:setPosition({vec2, y})
+    return
+  end
+
+  vec2 = vec2 or Vector2.zero
+  self.position = Vector2:new(vec2)
+  self.x = self.position.x
+  self.y = self.position.y
+
+  checkMouseOver()
 end
 
 function Button:isFocussed()
@@ -196,7 +215,14 @@ end
 function Button:draw()
   if not self.visible then return end
 
-  love.graphics.draw(self.canvas, self.x, self.y, self.rotation, self.scale.x, self.scale.y, self.offset.x, self.offset.y)
+  local alignPx = Vector2.zero
+  local anchorPx = Vector2:new(self.width * self.anchor[1], self.height * self.anchor[2])
+
+  if self.parent then
+    alignPx = Vector2:new(self.parent.width * self.align[1], self.parent.height * self.align[2])
+  else
+    alignPx = Vector2:new(love.window.width * self.align[1], love.window.height * self.align[2])
+  end
 
   if Console.debugMode then
     if self:isFocussed() then
@@ -205,9 +231,13 @@ function Button:draw()
       love.graphics.setColor(Color.red)
     end
 
-    love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
+    love.graphics.setCanvas(self.canvas)
+    love.graphics.rectangle("line", 1, 1, self.width-2, self.height-2)
+    love.graphics.setCanvas()
     love.graphics.setColor(Color.white)
   end
+
+  love.graphics.draw(self.canvas, self.x + alignPx.x, self.y + alignPx.y, self.rotation, self.scale.x, self.scale.y, self.offset.x + anchorPx.x, self.offset.y + anchorPx.y)
 
   for _, child in ipairs(self.children) do
     child:draw()
