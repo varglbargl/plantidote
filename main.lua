@@ -8,7 +8,7 @@ local Vector2 = require("Vector2")
 require("utils")
 
 local function load()
-  Console.startDebugging()
+  -- Console.startDebugging()
   love.window.setTitle("Plantidote v0.0.1")
   love.window.setMode(1280, 720, {resizable = true})
 
@@ -16,23 +16,34 @@ local function load()
 
   Layer:new("world", {parent = Game})
   Layer:new("ui", {parent = Game})
+  local startMenu = Layer:new("start menu", {parent = Game.ui})
 
   Button:new(0, 0, {
-    backgroundImage = "hotpocket.jpg",
+    -- image = "hotpocket.jpg",
+    label = "Play",
+    textAlign = {0.5, 0.5},
+    -- fontSize = 20,
+    fontColor = Color.white,
+    width = 200,
+    height = 60,
+    backgroundColor = Color.pink,
+    -- borderColor = Color.black,
+    -- borderThickness = 4,
+    cornerRadius = 15,
     align = {0.5, 0.5},
     anchor = {0.5, 0.5},
-    parent = Game.ui,
+    parent = startMenu,
     hovered = function(self)
-      self:setOffset(Vector2:new(0, 4))
+      self:setOffset(Vector2:new(0, 2))
     end,
     unhovered = function(self)
       self:setOffset()
     end,
     pressed = function(self)
-      self:setOffset()
+      self:setOffset(Vector2:new(0, -2))
     end,
     released = function(self)
-      self:setOffset(Vector2:new(0, 4))
+      self:setOffset(Vector2:new(0, 2))
     end
   })
 

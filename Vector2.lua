@@ -2,31 +2,35 @@ local Class = require("Class")
 
 local Vector2 = Class:new("Vector2")
 
-function Vector2:__add(val1, val2)
-  return Vector2:new(val1[1] + val2[1], val1[2] + val2[2])
+function Vector2:__add(val)
+  return Vector2:new(self[1] + val[1], self[2] + val[2])
 end
 
-function Vector2:__sub(val1, val2)
-  return Vector2:new(val1[1] - val2[1], val1[2] - val2[2])
+function Vector2:__sub(val)
+  return Vector2:new(self[1] - val[1], self[2] - val[2])
 end
 
-function Vector2:__mul(val1, val2)
-  if typeOf(val1) == "number" then
-    return Vector2:new(val1 * val2[1], val1 * val2[2])
-  elseif typeOf(val2) == "number" then
-    return Vector2:new(val1[1] * val2, val1[2] * val2)
-  elseif typeOf(val2) == "Vector2" then
-    return Vector2:new(val1[1] * val2[1], val1[2] * val2[2])
+function Vector2:__mul(val)
+  if type(val) == "number" then
+    return Vector2:new(self[1] * val, self[2] * val)
+  elseif type(val) == "table" then
+    return Vector2:new(self[1] * val[1], self[2] * val[2])
   end
 end
 
-function Vector2:__div(val1, val2)
-  if typeOf(val1) == "number" then
-    return Vector2:new(val1 / val2[1], val1 / val2[2])
-  elseif typeOf(val2) == "number" then
-    return Vector2:new(val1[1] / val2, val1[2] / val2)
-  elseif typeOf(val2) == "Vector2" then
-    return Vector2:new(val1[1] / val2[1], val1[2] / val2[2])
+function Vector2:__div(val)
+  if type(val) == "number" then
+    return Vector2:new(self[1] / val, self[2] / val)
+  elseif type(val) == "table" then
+    return Vector2:new(self[1] / val[1], self[2] / val[2])
+  end
+end
+
+function Vector2:__mod(val)
+  if type(val) == "number" then
+    return Vector2:new(self[1] % val, self[2] % val)
+  elseif type(val) == "table" then
+    return Vector2:new(self[1] % val[1], self[2] % val[2])
   end
 end
 

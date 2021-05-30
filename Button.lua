@@ -22,7 +22,7 @@ local function getHitbox(btn)
     alignPx = Vector2:new(love.window.width * btn.align[1], love.window.height * btn.align[2])
   end
 
-  return {x1 = btn.x + alignPx.x - btn.width * btn.anchor[1], y1 = btn.y + alignPx.y - btn.height * btn.anchor[2], x2 = btn.x + alignPx.x + btn.width * (1 - btn.anchor[1]), y2 = btn.y + alignPx.y + btn.height * (1 - btn.anchor[2])}
+  return {x1 = btn.x + alignPx.x - btn.width * btn.anchor[1] * btn.scale.x, y1 = btn.y + alignPx.y - btn.height * btn.anchor[2] * btn.scale.y, x2 = btn.x + alignPx.x + btn.width * (1 - btn.anchor[1]) * btn.scale.x, y2 = btn.y + alignPx.y + btn.height * (1 - btn.anchor[2]) * btn.scale.y}
 end
 
 local function isInside(btn, x, y)
@@ -31,6 +31,12 @@ local function isInside(btn, x, y)
 
   if x > hitbox.x1 and y > hitbox.y1 and x < hitbox.x2 and y < hitbox.y2 then
     if not btn:isFocussed() then
+
+      if focussedButton and focussedButton ~= btn then
+        btn:unfocus()
+        Events.broadcast("unhovered", focussedButton, x, y)
+      end
+
       btn:focus()
       Events.broadcast("hovered", btn, x, y)
     end
@@ -50,13 +56,15 @@ local function checkMouseOver(x, y)
   x = x or love.mouse.getX()
   y = y or love.mouse.getY()
 
-  if focussedButton then
-    isInside(focussedButton, x, y)
-  else
+  -- if focussedButton then
+  --   isInside(focussedButton, x, y)
+  -- else
     for i = #buttonList, 1, -1 do
-      if isInside(buttonList[i], x, y) then break end
+      if buttonList[i]:isActive() and buttonList[i]:isVisible() and isInside(buttonList[i], x, y) then
+        return buttonList[i]
+      end
     end
-  end
+  -- end
 end
 
 Events.connect("mousemoved", checkMouseOver)
@@ -93,6 +101,7 @@ function Button:new(x, y, params)
   btn.focussed = false
   btn.active = params.active or true
   btn.label = params.label
+  btn.textAlign = params.textAlign or {0.5, 0.5}
   btn.rotation = 0 -- buttons do not yet support rotation
 
   if params.tabOrder then
@@ -101,18 +110,45 @@ function Button:new(x, y, params)
     btn.tabOrder = y + x / 10 + btn.id / 100
   end
 
-  if params.backgroundImage and type(params.backgroundImage) == "string" then
-    btn.backgroundImage = love.graphics.newImage(params.backgroundImage)
-  elseif params.backgroundImage and params.backgroundImage:typeOf("Drawable") then
-    btn.backgroundImage = params.backgroundImage
+  if params.image and type(params.image) == "string" then
+    btn.image = love.graphics.newImage("/images/"..params.image)
+  elseif params.image and params.image:typeOf("Drawable") then
+    btn.image = params.image
   end
 
   btn.canvas = love.graphics.newCanvas(btn.width, btn.height)
 
   love.graphics.setCanvas(btn.canvas)
 
-  if btn.backgroundImage then
-    love.graphics.draw(btn.backgroundImage, 0, 0, 0, btn.width / btn.backgroundImage:getWidth(), btn.height / btn.backgroundImage:getHeight())
+  local bt = params.borderThickness or 2
+
+  if params.backgroundColor then
+    love.graphics.push()
+    love.graphics.setColor(params.backgroundColor)
+    love.graphics.rectangle("fill", bt / 2, bt / 2, btn.width - bt, btn.height - bt, params.cornerRadius)
+    love.graphics.pop()
+  end
+
+  if btn.image then
+    love.graphics.draw(btn.image, 0, 0, 0, btn.width / btn.image:getWidth(), btn.height / btn.image:getHeight())
+  end
+
+  if btn.label then
+    love.graphics.push()
+    local buttonText = love.graphics.newText(love.graphics.newFont(params.fontSize or math.floor(btn.height / 2)), btn.label)
+    local tw, th = buttonText:getDimensions()
+
+    love.graphics.setColor(params.fontColor or Color.black)
+    love.graphics.draw(buttonText, btn.width * btn.textAlign[1], btn.height * btn.textAlign[2], 0, 1, 1, tw * btn.textAlign[1], th * btn.textAlign[2])
+    love.graphics.pop()
+  end
+
+  if params.borderThickness or params.borderColor then
+    love.graphics.push()
+    love.graphics.setLineWidth(bt)
+    love.graphics.setColor(params.borderColor or Color.black)
+    love.graphics.rectangle("line", bt / 2, bt / 2, btn.width - bt, btn.height - bt, params.cornerRadius)
+    love.graphics.pop()
   end
 
   love.graphics.setCanvas()
@@ -182,11 +218,11 @@ end
 function Button:unfocus()
   if self:isFocussed() then
     focussedButton = nil
+    checkMouseOver()
   end
 end
 
-
-function GameObject:setPosition(vec2, y)
+function Button:setPosition(vec2, y)
   if type(vec2) == "number" and type(y) == "number" then
     self:setPosition({vec2, y})
     return
@@ -200,12 +236,17 @@ function GameObject:setPosition(vec2, y)
   checkMouseOver()
 end
 
+function Button:setRotation()
+  -- nothing
+end
+
 function Button:isFocussed()
   return focussedButton == self
 end
 
 function Button:setActive(tralse)
   self.active = tralse
+  checkMouseOver()
 end
 
 function Button:isActive()
@@ -225,6 +266,7 @@ function Button:draw()
   end
 
   if Console.debugMode then
+    love.graphics.push()
     if self:isFocussed() then
       love.graphics.setColor(Color.green)
     else
@@ -234,7 +276,7 @@ function Button:draw()
     love.graphics.setCanvas(self.canvas)
     love.graphics.rectangle("line", 1, 1, self.width-2, self.height-2)
     love.graphics.setCanvas()
-    love.graphics.setColor(Color.white)
+    love.graphics.pop()
   end
 
   love.graphics.draw(self.canvas, self.x + alignPx.x, self.y + alignPx.y, self.rotation, self.scale.x, self.scale.y, self.offset.x + anchorPx.x, self.offset.y + anchorPx.y)

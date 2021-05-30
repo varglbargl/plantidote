@@ -82,7 +82,7 @@ function Layer:removeChild(obj)
   for i, child in ipairs(self.children) do
     if child == obj then
       table.remove(self.children, i)
-      self[string.lower(obj.name)] = nil
+      if obj.name then self[string.lower(obj.name)] = nil end
       break
     end
   end

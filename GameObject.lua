@@ -96,6 +96,22 @@ function GameObject:setOffset(vec2)
   self.offset = Vector2:new(vec2)
 end
 
+function GameObject:isVisible()
+  if self.visible then
+    if self.parent then
+      return self.parent:isVisible()
+    else
+      return true
+    end
+  else
+    return false
+  end
+end
+
+function GameObject:setVisible(tralse)
+  self.visible = tralse
+end
+
 -- function GameObject:Move(vec2, time)
 --   if type(vec2) ~= "Vector2" then return end
 
