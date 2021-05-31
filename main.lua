@@ -19,16 +19,13 @@ local function load()
   local startMenu = Layer:new("start menu", {parent = Game.ui})
 
   Button:new(0, 0, {
-    -- image = "hotpocket.jpg",
     label = "Play",
     textAlign = {0.5, 0.5},
-    -- fontSize = 20,
+    font = "/fonts/OpenDyslexic-Bold.otf",
     fontColor = Color.white,
     width = 200,
     height = 60,
     backgroundColor = Color.pink,
-    -- borderColor = Color.black,
-    -- borderThickness = 4,
     cornerRadius = 15,
     align = {0.5, 0.5},
     anchor = {0.5, 0.5},

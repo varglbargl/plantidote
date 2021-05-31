@@ -8,6 +8,12 @@ Events.connectAfter("draw", Console.draw)
 
 -- random utility garbo
 
+local oldmode = love.window.setMode
+function love.window.setMode(...)
+  oldmode(...)
+  Events.broadcast("resize")
+end
+
 local function handleResize()
   love.window.width = love.graphics.getWidth()
   love.window.height = love.graphics.getHeight()
@@ -31,10 +37,6 @@ Events.connectBefore("load", function()
   handleResize()
   love.game = {}
   love.game.time = 0
-end)
-
-Events.connectAfter("load", function()
-  Events.broadcast("resize")
 end)
 
 Events.connect("update", function(dt)

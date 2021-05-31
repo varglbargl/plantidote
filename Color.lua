@@ -107,7 +107,7 @@ end
 
 Color.white       = Color:new(1, 1, 1, 1)
 Color.black       = Color:new(0, 0, 0, 1)
-Color.transperent = Color:new(1, 1, 1, 0)
+Color.transparent = Color:new(1, 1, 1, 0)
 
 Color.red         = Color:new(1, 0, 0, 1)
 Color.orange      = Color:new(1, 0.4, 0, 1)

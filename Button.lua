@@ -118,40 +118,56 @@ function Button:new(x, y, params)
 
   btn.canvas = love.graphics.newCanvas(btn.width, btn.height)
 
-  love.graphics.setCanvas(btn.canvas)
+  local function redrawCanvas()
 
-  local bt = params.borderThickness or 2
+    local function rectStencil()
+      love.graphics.rectangle("fill", 0, 0, btn.width, btn.height, params.cornerRadius)
+    end
 
-  if params.backgroundColor then
-    love.graphics.push()
-    love.graphics.setColor(params.backgroundColor)
-    love.graphics.rectangle("fill", bt / 2, bt / 2, btn.width - bt, btn.height - bt, params.cornerRadius)
-    love.graphics.pop()
+    if params.cornerRadius then
+      love.graphics.setCanvas({btn.canvas, stencil = true})
+      love.graphics.stencil(rectStencil, "replace", 1)
+      love.graphics.setStencilTest("greater", 0)
+    else
+      love.graphics.setCanvas(btn.canvas)
+    end
+
+    local bt = params.borderThickness or 2
+
+    if params.backgroundColor then
+      love.graphics.setColor(params.backgroundColor)
+      love.graphics.rectangle("fill", bt / 2, bt / 2, btn.width - bt, btn.height - bt, params.cornerRadius)
+      love.graphics.setColor(Color.white)
+    end
+
+    if btn.image then
+      love.graphics.draw(btn.image, 0, 0, 0, btn.width / btn.image:getWidth(), btn.height / btn.image:getHeight())
+    end
+
+    if btn.label then
+      love.graphics.push()
+      local buttonText = love.graphics.newText(love.graphics.newFont(params.font, params.fontSize or math.floor(btn.height / 1.7)), btn.label)
+      local tw, th = buttonText:getDimensions()
+
+      love.graphics.setColor(params.fontColor or Color.black)
+      love.graphics.draw(buttonText, btn.width * btn.textAlign[1], btn.height * btn.textAlign[2], 0, 1, 1, tw * btn.textAlign[1], th * btn.textAlign[2])
+      love.graphics.pop()
+    end
+
+    if params.borderThickness or params.borderColor then
+      love.graphics.push()
+      love.graphics.setLineWidth(bt)
+      love.graphics.setColor(params.borderColor or Color.black)
+      love.graphics.rectangle("line", bt / 2, bt / 2, btn.width - bt, btn.height - bt, params.cornerRadius)
+      love.graphics.setColor(Color.white)
+      love.graphics.pop()
+    end
+
+    love.graphics.setStencilTest()
+    love.graphics.setCanvas()
   end
 
-  if btn.image then
-    love.graphics.draw(btn.image, 0, 0, 0, btn.width / btn.image:getWidth(), btn.height / btn.image:getHeight())
-  end
-
-  if btn.label then
-    love.graphics.push()
-    local buttonText = love.graphics.newText(love.graphics.newFont(params.fontSize or math.floor(btn.height / 2)), btn.label)
-    local tw, th = buttonText:getDimensions()
-
-    love.graphics.setColor(params.fontColor or Color.black)
-    love.graphics.draw(buttonText, btn.width * btn.textAlign[1], btn.height * btn.textAlign[2], 0, 1, 1, tw * btn.textAlign[1], th * btn.textAlign[2])
-    love.graphics.pop()
-  end
-
-  if params.borderThickness or params.borderColor then
-    love.graphics.push()
-    love.graphics.setLineWidth(bt)
-    love.graphics.setColor(params.borderColor or Color.black)
-    love.graphics.rectangle("line", bt / 2, bt / 2, btn.width - bt, btn.height - bt, params.cornerRadius)
-    love.graphics.pop()
-  end
-
-  love.graphics.setCanvas()
+  redrawCanvas()
 
   function btn.onHovered(whichBtn, mouseX, mouseY)
     if whichBtn ~= btn then return end
@@ -185,6 +201,7 @@ function Button:new(x, y, params)
 
   function btn.onDestroyed(id)
     if id == btn.id then
+      Events.disconnect("resize", redrawCanvas)
       Events.disconnect("hovered", btn.onHovered)
       Events.disconnect("unhovered", btn.onUnhovered)
       Events.disconnect("mousepressed", btn.onMousePressed)
@@ -197,6 +214,7 @@ function Button:new(x, y, params)
 
   table.insert(buttonList, btn)
 
+  Events.connect("resize", redrawCanvas)
   Events.connect("hovered", btn.onHovered)
   Events.connect("unhovered", btn.onUnhovered)
   Events.connect("mousemoved", btn.onMouseMoved)
@@ -266,17 +284,17 @@ function Button:draw()
   end
 
   if Console.debugMode then
-    love.graphics.push()
+    love.graphics.setCanvas(self.canvas)
+
     if self:isFocussed() then
       love.graphics.setColor(Color.green)
     else
       love.graphics.setColor(Color.red)
     end
 
-    love.graphics.setCanvas(self.canvas)
     love.graphics.rectangle("line", 1, 1, self.width-2, self.height-2)
+    love.graphics.setColor(Color.white)
     love.graphics.setCanvas()
-    love.graphics.pop()
   end
 
   love.graphics.draw(self.canvas, self.x + alignPx.x, self.y + alignPx.y, self.rotation, self.scale.x, self.scale.y, self.offset.x + anchorPx.x, self.offset.y + anchorPx.y)
