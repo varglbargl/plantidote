@@ -1,5 +1,6 @@
 local Task = require("Task")
 local Color = require("Color")
+local Events = require("Events")
 
 local Console = {}
 
@@ -98,7 +99,9 @@ function Console.draw()
     love.graphics.print(tostring(messageText), 42, love.window.height - logHeight - 58 + i * 18)
   end
 
-  love.graphics.setColor(Color.white)
+  love.graphics.setColor()
 end
+
+Events.connectAfter("draw", Console.draw)
 
 return Console

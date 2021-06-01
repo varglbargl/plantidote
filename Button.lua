@@ -1,7 +1,6 @@
 local Events = require("Events")
 local GameObject = require("GameObject")
 local Console = require("Console")
-local Color = require("Color")
 local Vector2 = require("Vector2")
 local Class = require("Class")
 local Task = require("Task")
@@ -52,7 +51,7 @@ local function isInside(btn, x, y)
   end
 end
 
-local function checkMouseOver(x, y)
+local function checkMouseOver(x, y, btn)
   x = x or love.mouse.getX()
   y = y or love.mouse.getY()
 
@@ -137,7 +136,7 @@ function Button:new(x, y, params)
     if params.backgroundColor then
       love.graphics.setColor(params.backgroundColor)
       love.graphics.rectangle("fill", bt / 2, bt / 2, btn.width - bt, btn.height - bt, params.cornerRadius)
-      love.graphics.setColor(Color.white)
+      love.graphics.setColor()
     end
 
     if btn.image then
@@ -149,7 +148,7 @@ function Button:new(x, y, params)
       local buttonText = love.graphics.newText(love.graphics.newFont(params.font, params.fontSize or math.floor(btn.height / 1.7)), btn.label)
       local tw, th = buttonText:getDimensions()
 
-      love.graphics.setColor(params.fontColor or Color.black)
+      love.graphics.setColor(params.fontColor or "black")
       love.graphics.draw(buttonText, btn.width * btn.textAlign[1], btn.height * btn.textAlign[2], 0, 1, 1, tw * btn.textAlign[1], th * btn.textAlign[2])
       love.graphics.pop()
     end
@@ -157,9 +156,9 @@ function Button:new(x, y, params)
     if params.borderThickness or params.borderColor then
       love.graphics.push()
       love.graphics.setLineWidth(bt)
-      love.graphics.setColor(params.borderColor or Color.black)
+      love.graphics.setColor(params.borderColor or "black")
       love.graphics.rectangle("line", bt / 2, bt / 2, btn.width - bt, btn.height - bt, params.cornerRadius)
-      love.graphics.setColor(Color.white)
+      love.graphics.setColor()
       love.graphics.pop()
     end
 
@@ -287,13 +286,13 @@ function Button:draw()
     love.graphics.setCanvas(self.canvas)
 
     if self:isFocussed() then
-      love.graphics.setColor(Color.green)
+      love.graphics.setColor("green")
     else
-      love.graphics.setColor(Color.red)
+      love.graphics.setColor("red")
     end
 
     love.graphics.rectangle("line", 1, 1, self.width-2, self.height-2)
-    love.graphics.setColor(Color.white)
+    love.graphics.setColor()
     love.graphics.setCanvas()
   end
 

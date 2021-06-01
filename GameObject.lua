@@ -2,6 +2,7 @@ local Class = require("Class")
 local Vector2 = require("Vector2")
 local Console = require("Console")
 local Events = require("Events")
+local Color = require("Color")
 
 local GameObject = Class:new("GameObject")
 
@@ -30,6 +31,8 @@ function GameObject:destroy()
 
   Events.broadcast("destroyed", self.id)
   gameObjectList[self.id] = nil
+
+  return nil
 end
 
 function GameObject:addChild(obj)
@@ -163,6 +166,12 @@ function GameObject:draw()
 
   if self.image then
     love.graphics.draw(self.image, self.position.x, self.position.y, self.rotation, self.scale.x, self.scale.y, self.offset.x - (self.width * self.anchor[1]), self.offset.y - (self.height * self.anchor[2]))
+  end
+
+  if self.backgroundColor then
+    love.graphics.setColor(self.backgroundColor)
+    love.graphics.rectangle("fill", 0, 0, self.width, self.height)
+    love.graphics.setColor(Color.white)
   end
 
   for _, child in ipairs(self.children) do

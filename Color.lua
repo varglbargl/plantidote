@@ -57,6 +57,13 @@ function Color:__tostring()
 end
 
 function Color:new(red, green, blue, alpha)
+  if typeOf(red) == "Color" then
+    return red
+  elseif typeOf(red) == "table" then
+    return Color:new(red[1], red[2], red[3], red[4])
+  elseif typeOf(red) == "string" and Color[red] then
+    return Color[red]
+  end
   alpha = alpha or 1
 
   local col = {}
@@ -114,13 +121,16 @@ Color.orange      = Color:new(1, 0.4, 0, 1)
 Color.yellow      = Color:new(1, 1, 0, 1)
 Color.green       = Color:new(0, 1, 0, 1)
 Color.blue        = Color:new(0, 0, 1, 1)
-Color.purple      = Color:new(0.5, 0, 1, 1)
+Color.purple      = Color:new(0.4, 0, 1, 1)
 
 Color.gray        = Color:new(0.5, 0.5, 0.5, 1)
 Color.cyan        = Color:new(0, 1, 1, 1)
 Color.magenta     = Color:new(1, 0, 1, 1)
 Color.pink        = Color:new(1, 0.5, 0.6, 1)
 Color.brown       = Color:new(0.6, 0.3, 0.2, 1)
+Color.alpine      = Color:new(0, 0.22, 0.12, 1)
+
 Color.lightUrple  = Color.average(Color.purple, Color.white)
+Color["light urple"]  = Color.lightUrple
 
 return Color

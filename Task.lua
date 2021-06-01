@@ -26,14 +26,16 @@ function Task.wait(secs)
   if not coroutine.running() then return end
 
   secs = secs or 0
-  local startTime = love.game.time
+  local currentTime = love.timer.getTime()
+  local startTime = currentTime
   local endTime = startTime + secs
 
-  while love.game.time <= endTime do
+  while currentTime <= endTime do
     coroutine.yield()
+    currentTime = love.timer.getTime()
   end
 
-  return love.game.time - startTime
+  return currentTime - startTime
 end
 
 function Task.kill(co)

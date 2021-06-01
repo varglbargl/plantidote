@@ -2,7 +2,7 @@ local GameObject = require("GameObject")
 local Events = require("Events")
 local Class = require("Class")
 local Console = require("Console")
-local Task = require("Task")
+local Color = require("Color")
 
 local Layer = Class:new("Layer")
 Class.extend(Layer, GameObject)
@@ -42,18 +42,30 @@ end
 function Layer:new(name, params)
   assert(name and type(name) == "string", "Layers must be given a name.")
 
+  if params.parent and type(params.parent) == "string" then
+    params.parent = layerFromName(params.parent)
+    if not params.parent then
+      error("There is no layer named \""..name.."\".")
+    end
+  end
+
   params = params or {}
   local lyr = GameObject:new(0, 0, params)
   Class.extend(lyr, Layer)
 
   lyr.width = love.window.width
   lyr.height = love.window.height
+  lyr.visible = params.visible
 
   if lyr.parent and lyr.parent:typeOf("Layer") then
     lyr.parent[string.lower(name)] = lyr
   end
 
   lyr.name = name
+
+  if params.backgroundColor then
+    lyr.backgroundColor = Color:new(params.backgroundColor)
+  end
 
   assert(not layerFromName(name) and not lyr[name], "There is either already a layer named \""..name.."\" or that is a reserved word. Sorry!")
 
@@ -88,12 +100,18 @@ function Layer:removeChild(obj)
   end
 end
 
-function Layer.showLayer(name)
-  layerFromName(name):setVsible(true)
+function Layer.show(lyr)
+  if type(lyr) == "string" then
+    lyr = layerFromName(lyr)
+  end
+
+  lyr:setVisible(true)
+
+  return lyr:isVisible()
 end
 
-function Layer.hideLayer(name)
-  layerFromName(name):setVsible(false)
+function Layer.hide(name)
+  layerFromName(name):setVisible(false)
 end
 
 Events.connect('destroyed', onDestroyed)
