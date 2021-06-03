@@ -158,14 +158,20 @@ function GameObject:new(x, y, params)
     params.parent:addChild(obj)
   end
 
+  if params.image and type(params.image) == "string" then
+    obj.image = love.graphics.newImage("/images/"..params.image)
+  elseif params.image and params.image:typeOf("Drawable") then
+    obj.image = params.image
+  end
+
   return obj
 end
 
 function GameObject:draw()
-  if not self.visible then return end
+  if not self:isVisible() then return end
 
   if self.image then
-    love.graphics.draw(self.image, self.position.x, self.position.y, self.rotation, self.scale.x, self.scale.y, self.offset.x - (self.width * self.anchor[1]), self.offset.y - (self.height * self.anchor[2]))
+    love.graphics.draw(self.image, self.position.x, self.position.y, self.rotation, self.scale.x, self.scale.y, self.offset.x + (self.width * self.anchor[1]), self.offset.y + (self.height * self.anchor[2]))
   end
 
   if self.backgroundColor then

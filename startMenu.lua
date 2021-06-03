@@ -32,6 +32,7 @@ Button:new(0, 0, {
   end,
   released = function(self)
     Events.broadcast("startGame")
+    self:setActive(false)
     self:setOffset(Vector2:new(0, 2))
   end
 })

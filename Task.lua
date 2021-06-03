@@ -1,3 +1,5 @@
+local connect = require("Events").connect
+
 local Task = {}
 local jobs = {}
 
@@ -38,7 +40,15 @@ function Task.wait(secs)
   return currentTime - startTime
 end
 
+function Task.after(secs, callback)
+  Task.spawn(function()
+    Task.wait(secs)
+    callback()
+  end)
+end
+
 function Task.kill(co)
+  co = co or Task.getCurrent()
   if not co then return end
 
   for i, v in ipairs(jobs) do
@@ -56,5 +66,7 @@ end
 function Task.getCurrent()
   return coroutine.running()
 end
+
+connect("update", Task.tick)
 
 return Task

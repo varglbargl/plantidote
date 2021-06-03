@@ -39,6 +39,7 @@ function Events.disconnect(eventName, callback)
       end
     end
     for i, func in ipairs(registry[eventName]) do
+      if eventName == "mousereleased" then error("bwonk") end
       if func == callback then
         table.remove(registry[eventName], i)
         return

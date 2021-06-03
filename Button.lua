@@ -25,10 +25,9 @@ local function getHitbox(btn)
 end
 
 local function isInside(btn, x, y)
-  if not btn:isActive() then return end
   local hitbox = getHitbox(btn)
 
-  if x > hitbox.x1 and y > hitbox.y1 and x < hitbox.x2 and y < hitbox.y2 then
+  if btn:isActive() and btn:isVisible() and x > hitbox.x1 and y > hitbox.y1 and x < hitbox.x2 and y < hitbox.y2 then
     if not btn:isFocussed() then
 
       if focussedButton and focussedButton ~= btn then
@@ -71,6 +70,10 @@ Events.connect("mousemoved", checkMouseOver)
 local function removeFromBtnList(btn)
   for i, b in ipairs(buttonList) do
     if b == btn then
+      if focussedButton == btn then
+        focussedButton = nil
+      end
+
       btn:unfocus()
       table.remove(buttonList, i)
       Task.spawn(function()
@@ -107,12 +110,6 @@ function Button:new(x, y, params)
     btn.tabOrder = params.tabOrder + y + x / 10 + btn.id / 100
   else
     btn.tabOrder = y + x / 10 + btn.id / 100
-  end
-
-  if params.image and type(params.image) == "string" then
-    btn.image = love.graphics.newImage("/images/"..params.image)
-  elseif params.image and params.image:typeOf("Drawable") then
-    btn.image = params.image
   end
 
   btn.canvas = love.graphics.newCanvas(btn.width, btn.height)
@@ -216,7 +213,6 @@ function Button:new(x, y, params)
   Events.connect("resize", redrawCanvas)
   Events.connect("hovered", btn.onHovered)
   Events.connect("unhovered", btn.onUnhovered)
-  Events.connect("mousemoved", btn.onMouseMoved)
   Events.connect("mousepressed", btn.onMousePressed)
   Events.connect("mousereleased", btn.onMouseReleased)
   Events.connect("destroyed", btn.onDestroyed)

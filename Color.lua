@@ -129,6 +129,7 @@ Color.magenta     = Color:new(1, 0, 1, 1)
 Color.pink        = Color:new(1, 0.5, 0.6, 1)
 Color.brown       = Color:new(0.6, 0.3, 0.2, 1)
 Color.alpine      = Color:new(0, 0.22, 0.12, 1)
+Color.paper       = Color:new(0.91, 0.88, 0.82, 1)
 
 Color.lightUrple  = Color.average(Color.purple, Color.white)
 Color["light urple"]  = Color.lightUrple
