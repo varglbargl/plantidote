@@ -2,7 +2,7 @@ local Class = require("Class")
 local GameObject = require("GameObject")
 local Events = require("Events")
 local Game = require("Game")
-local Vector2 = require "Vector2"
+local Vector2 = require("Vector2")
 
 local Player = Class:new("Player")
 Class.extend(Player, GameObject)
@@ -14,6 +14,7 @@ end
 function Player:new(params)
 
   params = params or {}
+  params.parent = params.parent or Game.screen.world
 
   local plr = GameObject:new(love.window.width / 2, love.window.height / 2, params)
   Class.extend(plr, Player)
@@ -28,14 +29,14 @@ function Player:new(params)
     if not plr:isEnabled() then return end
     local to = {0, 0}
 
-    if love.keyboard.isDown("right") then
+    if love.keyboard.isDown("right") or love.keyboard.isDown("d") then
 
       if checkCollision(plr) then
         to[1] = 1
       end
 
       plr.flip = 1
-    elseif love.keyboard.isDown("left") then
+    elseif love.keyboard.isDown("left") or love.keyboard.isDown("a") then
 
       if checkCollision(plr) then
         to[1] = -1
@@ -44,14 +45,14 @@ function Player:new(params)
       plr.flip = -1
     end
 
-    if love.keyboard.isDown("up") then
+    if love.keyboard.isDown("up") or love.keyboard.isDown("w") then
 
       if checkCollision(plr) then
         to[2] = -1
       end
 
       plr.flop = -1
-    elseif love.keyboard.isDown("down") then
+    elseif love.keyboard.isDown("down") or love.keyboard.isDown("s") then
 
       if checkCollision(plr) then
         to[2] = 1

@@ -64,6 +64,7 @@ function Color:new(red, green, blue, alpha)
   elseif typeOf(red) == "string" and Color[red] then
     return Color[red]
   end
+
   alpha = alpha or 1
 
   local col = {}
@@ -112,6 +113,10 @@ function Color.average(...)
   return Color:new(red/#cols, green/#cols, blue/#cols, alpha/#cols)
 end
 
+function Color:invert()
+  return Color:new(1-self[1], 1-self[2], 1-self[3], self[4])
+end
+
 Color.white       = Color:new(1, 1, 1, 1)
 Color.black       = Color:new(0, 0, 0, 1)
 Color.transparent = Color:new(1, 1, 1, 0)
@@ -130,6 +135,7 @@ Color.pink        = Color:new(1, 0.5, 0.6, 1)
 Color.brown       = Color:new(0.6, 0.3, 0.2, 1)
 Color.alpine      = Color:new(0, 0.22, 0.12, 1)
 Color.paper       = Color:new(0.91, 0.88, 0.82, 1)
+Color.ground      = Color:new(0.53, 0.48, 0.27, 1)
 
 Color.lightUrple  = Color.average(Color.purple, Color.white)
 Color["light urple"]  = Color.lightUrple

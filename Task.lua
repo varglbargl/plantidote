@@ -1,4 +1,4 @@
-local connect = require("Events").connect
+local Events = require("Events")
 
 local Task = {}
 local jobs = {}
@@ -67,6 +67,6 @@ function Task.getCurrent()
   return coroutine.running()
 end
 
-connect("update", Task.tick)
+Events.connect("update", Task.tick)
 
 return Task

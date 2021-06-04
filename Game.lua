@@ -45,13 +45,14 @@ local function handleResize()
 end
 
 local function setupGameData()
+  math.randomseed(os.time())
   love.window.setTitle("Plantidote v0.0.1")
-  love.window.setMode(1280, 720, {resizable = true})
+  love.window.setMode(1280, 720, {resizable = true, msaa = 16})
   handleResize()
 
   Game.screen = Layer:new("screen", {visible = true})
 
-  Layer:new("world", {parent = Game.screen, backgroundColor = "alpine"})
+  Layer:new("world", {parent = Game.screen, backgroundColor = Color.ground})
   Layer:new("ui", {parent = Game.screen, visible = true})
 
   require("startMenu")

@@ -84,7 +84,20 @@ function Layer:addChild(obj)
   end
 
   obj.parent = self
-  table.insert(self.children, obj)
+
+  if #self.children == 0 then
+    table.insert(self.children, obj)
+  else
+    for i, child in ipairs(self.children) do
+      if obj.y <= child.y then
+        table.insert(self.children, i, obj)
+        break
+      elseif i == #self.children then
+        table.insert(self.children, obj)
+        break
+      end
+    end
+  end
 end
 
 function Layer:removeChild(obj)
