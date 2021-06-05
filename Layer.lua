@@ -44,12 +44,12 @@ function Layer:new(name, params)
 
   if params.parent and type(params.parent) == "string" then
     params.parent = layerFromName(params.parent)
+
     if not params.parent then
       error("There is no layer named \""..name.."\".")
     end
   end
 
-  params = params or {}
   local lyr = GameObject:new(0, 0, params)
   Class.extend(lyr, Layer)
 
@@ -62,6 +62,7 @@ function Layer:new(name, params)
   end
 
   lyr.name = name
+  lyr.layerPlayer = nil
 
   if params.backgroundColor then
     lyr.backgroundColor = Color:new(params.backgroundColor)
@@ -83,6 +84,16 @@ function Layer:addChild(obj)
     self[string.lower(obj.name)] = obj
   end
 
+  if obj:typeOf("Player") then
+    self.layerPlayer = obj
+
+    for _, child in ipairs(self.children) do
+      child.occluded = child.y > obj.y
+    end
+  elseif self.layerPlayer then
+    obj.occluded = obj.y > self.layerPlayer.y
+  end
+
   obj.parent = self
 
   if #self.children == 0 then
@@ -97,6 +108,9 @@ function Layer:addChild(obj)
         break
       end
     end
+  end
+
+  if self.layerPlayer then
   end
 end
 

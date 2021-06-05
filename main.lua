@@ -28,9 +28,10 @@ local function startGame()
     Game.player = Player:new({image = "blurba.png"})
     Layer.show("world")
 
-    for i = 1, 15 do
+    for i = 1, 12 do
       local tree = Prop:new("tree1")
       tree:setPosition(Vector2:new(math.random(1280), 100 + math.random(600)))
+      tree:setScale(tree:getScale() * Vector2:new(math.random(1) * 2 - 1, 1))
       Game.screen.world:addChild(tree)
     end
 

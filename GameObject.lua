@@ -118,17 +118,25 @@ function GameObject:setPosition(x, y)
   self.x = self.position.x
   self.y = self.position.y
 
-  if self.parent and #self.parent.children > 1 then
+  if self.parent and self.parent:typeOf("Layer") and #self.parent.children > 1 then
     for i, child in ipairs(self.parent.children) do
 
       if child == self then
-
-        if i > 1 and self.parent.children[i-1].y > child.y then
+        if i > 1 and self.parent.children[i-1].y > self.y then
+          -- prop is being drawn in the wrong order according to its position
           self.parent.children[i], self.parent.children[i-1] = self.parent.children[i-1], self.parent.children[i]
-        elseif i < #self.parent.children and self.parent.children[i+1].y < child.y then
-          self.parent.children[i], self.parent.children[i+1] = self.parent.children[i+1], self.parent.children[i]
-        end
 
+          if self.parent.children[i].occlude and self:typeOf("Player") then
+            self.parent.children[i].occluded = true
+          end
+        elseif i < #self.parent.children and self.parent.children[i+1].y < self.y then
+          self.parent.children[i], self.parent.children[i+1] = self.parent.children[i+1], self.parent.children[i]
+
+          if self.parent.children[i].occlude and self:typeOf("Player") then
+            self.parent.children[i].occluded = false
+          end
+        end
+        break
       end
     end
   end
@@ -194,6 +202,8 @@ function GameObject:moveTo(vec2, secs)
   end)
 end
 
+-- NEW GAME OBJECT --
+
 function GameObject:new(x, y, params)
   if typeOf(x) == "table" then
     return GameObject:new(x.x, x.y, x)
@@ -217,8 +227,8 @@ function GameObject:new(x, y, params)
     obj.position = Vector2:new(x, y)
   end
 
-  obj.x = obj.position.x
-  obj.y = obj.position.y
+  obj:setPosition(obj.position)
+
   obj.rotation = params.rotation or 0
 
   if params.scale then
@@ -233,10 +243,17 @@ function GameObject:new(x, y, params)
     obj.offset = Vector2.zero
   end
 
+  obj.opacity = params.opacity or 1
   obj.visible = params.visible or true
+  obj.occlude = params.occlude
+  obj.occluded = false
+  obj.occludable = params.occludable
 
   if params.parent then
-    params.parent:addChild(obj)
+    Task.spawn(function()
+      Task.wait()
+      params.parent:addChild(obj)
+    end)
   end
 
   if params.image then
@@ -256,7 +273,7 @@ function GameObject:new(x, y, params)
   return obj
 end
 
-function GameObject:draw()
+function GameObject:draw(shouldOcclude)
   if not self:isVisible() then return end
 
   if self.image then
@@ -264,7 +281,30 @@ function GameObject:draw()
     local rotation = self:getWorldRotation()
     local scale = self:getWorldScale()
 
+    if self.occludable then
+
+      if shouldOcclude then
+
+        if self.opacity > 0.1 then
+          self.opacity = self.opacity * 0.9
+        else
+          self.opacity = 0.075
+        end
+
+      else
+
+        if self.opacity < 0.9 then
+          self.opacity = math.max(self.opacity * 1.1, 0.1)
+        else
+          self.opacity = 1
+        end
+
+      end
+    end
+
+    love.graphics.setColor(1, 1, 1, self.opacity)
     love.graphics.draw(self.image, position.x, position.y, rotation, scale.x, scale.y, self.offset.x + (self.width * self.anchor[1]), self.offset.y + (self.height * self.anchor[2]))
+    love.graphics.setColor()
   end
 
   if self.backgroundColor then
@@ -274,7 +314,7 @@ function GameObject:draw()
   end
 
   for _, child in ipairs(self.children) do
-    child:draw()
+    child:draw(shouldOcclude or (self.occlude and self.occluded))
   end
 end
 

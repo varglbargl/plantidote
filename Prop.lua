@@ -16,10 +16,6 @@ function Prop:new(propFile)
 
   local prp = GameObject:new(propFile)
 
-  if math.random(2) == 2 then
-    prp:setScale(prp:getScale() * Vector2:new(-1, 1))
-  end
-
   if propFile.image and type(propFile.image) == "string" then
     propFile.image = prp.image
   end
