@@ -31,7 +31,12 @@ local function startGame()
     for i = 1, 12 do
       local tree = Prop:new("tree1")
       tree:setPosition(Vector2:new(math.random(1280), 100 + math.random(600)))
-      tree:setScale(tree:getScale() * Vector2:new(math.random(1) * 2 - 1, 1))
+      tree:setScale(tree:getScale() * Vector2:new(math.random(0, 1) * 2 - 1, 1))
+      Game.screen.world:addChild(tree)
+
+      tree = Prop:new("shoosh1")
+      tree:setPosition(Vector2:new(math.random(1280), 100 + math.random(600)))
+      tree:setScale(tree:getScale() * Vector2:new(math.random(0, 1) * 2 - 1, 1))
       Game.screen.world:addChild(tree)
     end
 

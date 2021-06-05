@@ -1,9 +1,9 @@
 return {
-  x = 300,
-  y = 300,
+  x = 0,
+  y = 0,
   occlude = true,
   scale = {0.6, 0.6},
-  anchor = {0.5, 0.75},
+  anchor = {0.5, 0.9},
   children = {
     {
       x = 0,
